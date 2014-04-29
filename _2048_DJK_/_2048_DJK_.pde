@@ -7,6 +7,7 @@ void setup()
 
 int blockDirection = 90;
 int numberOfBlocks = 4;
+boolean moveBegin = true;
 
 //create a struct block
 struct Block
@@ -33,19 +34,36 @@ void loop()
   {
     drawBlock(blockArray[i].x, blockArray[i].y, blockArray[i].color);
   }
-  
+  if (moveBegin) 
+    spawn();
   DisplaySlate();
   delay(200);
   updateBlock();
-
+  
   
 
   
-  CheckButtonsPress();
-  if (Button_Left) blockDirection = 270;
-  if (Button_Up) blockDirection = 0;
-  if (Button_Right) blockDirection = 90;
-  if (Button_Down) blockDirection = 180;
+  CheckButtonsPress(); // Updates direction based on button press and sets moveBegin to spawn a new block at next turn
+  if (Button_Left) 
+  {
+    blockDirection = 270;
+    moveBegin = true;
+  }
+  else if (Button_Up)
+  {
+    blockDirection = 0;
+    moveBegin = true;
+  }
+  else if (Button_Right)
+  {
+    blockDirection = 90;
+    moveBegin = true;
+  }
+  else if (Button_Down)
+  {
+    blockDirection = 180;
+    moveBegin = true;
+  }
   if (Button_A) printArray();
   updateBlockDirection();
 }
@@ -127,4 +145,22 @@ void printArray()
     Serial.println(blockArray[i].dir);
     Serial.println();
   }
+}
+
+// This searches the array for an empty spot and creates a new block there.
+void spawn()
+{
+  int locX = random(8);
+  int locY = random(8);
+  
+  while (ReadPx(locX,locY) != 0)
+  {
+    locX = random(8);
+    locY = random(8);
+  }
+  
+  Block temp = {locX, locY, White, -1};
+  blockArray[numberOfBlocks] = temp;
+  numberOfBlocks++;
+  moveBegin = false;
 }
