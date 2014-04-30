@@ -150,6 +150,25 @@ void printArray()
 // This searches the array for an empty spot and creates a new block there.
 void spawn()
 {
+  boolean dupe = true;
+  
+  while (dupe)
+  {
+    int locX = random(4)*2;
+    int locY = random(4)*2 + 1;
+  
+    for (int i = 0; i < numberOfBlocks; i++)
+    {
+      if (blockArray[i].x == locX && blockArray[i].y == locY)
+      {
+        dupe = true;
+        break;
+      }
+    }
+    dupe = false;
+  }
+  
+  /* This generates a random block and sees if the space is empty
   int locX = random(4)*2;
   int locY = random(4)*2 + 1;
   
@@ -157,7 +176,9 @@ void spawn()
   {
     locX = random(4)*2;
     locY = random(4)*2 + 1;
-  }
+  }*/
+  
+  
   
   Block temp = {locX, locY, White, -1}; // Creates a new block and adds it to blockArray
   blockArray[numberOfBlocks] = temp;
