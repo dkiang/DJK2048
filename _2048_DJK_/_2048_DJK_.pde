@@ -34,7 +34,7 @@ void loop()
   {
     drawBlock(blockArray[i].x, blockArray[i].y, blockArray[i].color);
   }
-  if (moveBegin) 
+  if (moveBegin && numberOfBlocks < 16)
     spawn();
   DisplaySlate();
   delay(200);
@@ -122,7 +122,7 @@ void updateBlock() // Moves every block in the array if there is an empty space
     
     else if(blockArray[i].dir == 180)
     {
-      if (blockArray[i].x > 0)
+      if (blockArray[i].y > 0)
       {
         if(ReadPx(blockArray[i].x, blockArray[i].y-2) == 0)
         blockArray[i].y -= 2;
@@ -150,16 +150,16 @@ void printArray()
 // This searches the array for an empty spot and creates a new block there.
 void spawn()
 {
-  int locX = random(8);
-  int locY = random(8);
+  int locX = random(4)*2;
+  int locY = random(4)*2 + 1;
   
   while (ReadPx(locX,locY) != 0)
   {
-    locX = random(8);
-    locY = random(8);
+    locX = random(4)*2;
+    locY = random(4)*2 + 1;
   }
   
-  Block temp = {locX, locY, White, -1};
+  Block temp = {locX, locY, White, -1}; // Creates a new block and adds it to blockArray
   blockArray[numberOfBlocks] = temp;
   numberOfBlocks++;
   moveBegin = false;
