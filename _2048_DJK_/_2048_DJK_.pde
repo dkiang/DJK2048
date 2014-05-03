@@ -97,7 +97,7 @@ void updateBlock() // Moves every block in the array if there is an empty space
     {
       if (blockArray[i].x > 0) // If it's not at the edge...
       {
-        if(ReadPx(blockArray[i].x-2, blockArray[i].y) == 0) // If there's an empty space...
+        if(isUnique(blockArray[i].x - 2, blockArray[i].y)) // If there's an empty space...
         blockArray[i].x -= 2;
       }
     }
@@ -106,7 +106,7 @@ void updateBlock() // Moves every block in the array if there is an empty space
     {
       if (blockArray[i].y < 7)
       {
-        if(ReadPx(blockArray[i].x, blockArray[i].y+2) == 0)
+        if(isUnique(blockArray[i].x, blockArray[i].y + 2))
         blockArray[i].y += 2;
       }
     }
@@ -115,16 +115,16 @@ void updateBlock() // Moves every block in the array if there is an empty space
     {
       if (blockArray[i].x < 6)
       {
-        if(ReadPx(blockArray[i].x+2, blockArray[i].y) == 0)
+        if(isUnique(blockArray[i].x + 2, blockArray[i].y))
         blockArray[i].x += 2;
       }
     }
     
     else if(blockArray[i].dir == 180)
     {
-      if (blockArray[i].y > 0)
+      if (blockArray[i].y > 1)
       {
-        if(ReadPx(blockArray[i].x, blockArray[i].y-2) == 0)
+        if(isUnique(blockArray[i].x, blockArray[i].y - 2))
         blockArray[i].y -= 2;
       }
     }
@@ -150,38 +150,29 @@ void printArray()
 // This searches the array for an empty spot and creates a new block there.
 void spawn()
 {
-  boolean dupe = true;
-  
-  while (dupe)
-  {
-    int locX = random(4)*2;
-    int locY = random(4)*2 + 1;
-  
-    for (int i = 0; i < numberOfBlocks; i++)
-    {
-      if (blockArray[i].x == locX && blockArray[i].y == locY)
-      {
-        dupe = true;
-        break;
-      }
-    }
-    dupe = false;
-  }
-  
-  /* This generates a random block and sees if the space is empty
   int locX = random(4)*2;
   int locY = random(4)*2 + 1;
   
-  while (ReadPx(locX,locY) != 0)
+  while (isUnique(locX,locY) == false)
   {
     locX = random(4)*2;
     locY = random(4)*2 + 1;
-  }*/
-  
-  
-  
-  Block temp = {locX, locY, White, -1}; // Creates a new block and adds it to blockArray
+  }
+
+  Block temp = {locX, locY, random(6)+1, -1}; // Creates a new block and adds it to blockArray
   blockArray[numberOfBlocks] = temp;
   numberOfBlocks++;
   moveBegin = false;
+}
+
+boolean isUnique(int x, int y)
+{
+  for (int i = 0; i < numberOfBlocks; i++)
+  {
+    if (blockArray[i].x == x && blockArray[i].y == y)
+    {
+      return false;
+    }
+  }
+  return true;
 }
