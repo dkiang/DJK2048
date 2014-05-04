@@ -3,11 +3,16 @@ void setup()
 {
   MeggyJrSimpleSetup();
   Serial.begin(9600);
+  EditColor(Yellow, 13, 2, 0);
+  EditColor(Orange, 13, 1, 0);
 }
 
 int blockDirection = 90;
-int numberOfBlocks = 4;
-boolean moveBegin = true;
+int numberOfBlocks = 6;
+boolean moveBegin = false;
+
+
+
 
 //create a struct block
 struct Block
@@ -19,13 +24,15 @@ struct Block
 };
 
 
-Block s1 = {2,1,7,-1};
-Block s2 = {2,5,3,-1};
-Block s3 = {4,3,2,-1};
-Block s4 = {4,7,1,-1};
+Block s1 = {2,1,Red,-1};
+Block s2 = {4,3,Orange,-1};
+Block s3 = {2,5,Green,-1};
+Block s4 = {4,7,Blue,-1};
+Block s5 = {0,1,Violet,-1};
+Block s6 = {0,5,Yellow,-1};
 
 //define the array
-Block blockArray[64] = {s1, s2, s3, s4};
+Block blockArray[64] = {s1, s2, s3, s4, s5, s6};
 
 void loop()
 {
@@ -34,11 +41,12 @@ void loop()
   {
     drawBlock(blockArray[i].x, blockArray[i].y, blockArray[i].color);
   }
-  if (moveBegin && numberOfBlocks < 16)
-    spawn();
+  //if (moveBegin && numberOfBlocks < 16)
+  //  spawn();
   DisplaySlate();
   delay(200);
-  updateBlock();
+  if (moveBegin)
+    updateBlocks();
   
   
 
@@ -53,7 +61,7 @@ void loop()
   {
     blockDirection = 0;
     moveBegin = true;
-  }
+   }
   else if (Button_Right)
   {
     blockDirection = 90;
@@ -64,8 +72,12 @@ void loop()
     blockDirection = 180;
     moveBegin = true;
   }
-  if (Button_A) printArray();
-  updateBlockDirection();
+  if (Button_A) 
+  {
+    printArray(); // Prints out values of blocks in the array
+  }
+  if (moveBegin)
+    updateBlockDirection();
 }
 
 
@@ -84,50 +96,71 @@ void updateBlockDirection() // Goes through blockArray and sets all individual b
   for(int i; i < numberOfBlocks; i++)
   {
     blockArray[i].dir = blockDirection;
-  } 
+  }
 }
 
 
-void updateBlock() // Moves every block in the array if there is an empty space
+void updateBlocks() // Moves every block in the array if there is an empty space
 {
-  for(int i = 0; i < numberOfBlocks; i++)
-  {  
-
+  int stopped = 0; // Number of blocks that have come to rest
+  int i = 0;
+  while (i < numberOfBlocks)
+  {
+    stopped = 0;
     if(blockArray[i].dir == 270)
     {
-      if (blockArray[i].x > 0) // If it's not at the edge...
+      if (blockArray[i].x <= 0) 
+        stopped++; // Count it as stopped if it's on the edge
+      else
       {
         if(isUnique(blockArray[i].x - 2, blockArray[i].y)) // If there's an empty space...
-        blockArray[i].x -= 2;
+          blockArray[i].x -= 2; // Move the block
+        else stopped++; // Otherwise, count it as stopped.
       }
     }
   
     else if(blockArray[i].dir == 0)
     {
-      if (blockArray[i].y < 7)
+      if (blockArray[i].y >= 7)
+        stopped++;
+      else
       {
         if(isUnique(blockArray[i].x, blockArray[i].y + 2))
-        blockArray[i].y += 2;
+          blockArray[i].y += 2;
+        else stopped++;
       }
     }
    
     else if(blockArray[i].dir == 90)
     {
-      if (blockArray[i].x < 6)
+      if (blockArray[i].x >= 6)
+        stopped++;
+      else
       {
         if(isUnique(blockArray[i].x + 2, blockArray[i].y))
-        blockArray[i].x += 2;
+          blockArray[i].x += 2;
+        else stopped++;
       }
     }
     
     else if(blockArray[i].dir == 180)
     {
-      if (blockArray[i].y > 1)
+      if (blockArray[i].y <= 1)
+        stopped++;
+      else
       {
         if(isUnique(blockArray[i].x, blockArray[i].y - 2))
-        blockArray[i].y -= 2;
+          blockArray[i].y -= 2;
+        else stopped++;
       }
     }
+    if (i > numberOfBlocks) i = 0;
+    else i++;
+  }
+  if (stopped >= numberOfBlocks)
+  {
+    moveBegin = false;
+    spawn(); // Create a new block
   }
 }
 
@@ -162,7 +195,6 @@ void spawn()
   Block temp = {locX, locY, random(6)+1, -1}; // Creates a new block and adds it to blockArray
   blockArray[numberOfBlocks] = temp;
   numberOfBlocks++;
-  moveBegin = false;
 }
 
 boolean isUnique(int x, int y)
