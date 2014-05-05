@@ -21,15 +21,16 @@ struct Block
   int y;
   int color;
   int dir;
+  boolean active;
 };
 
 
-Block s1 = {2,1,Red,-1};
-Block s2 = {4,3,Orange,-1};
-Block s3 = {2,5,Green,-1};
-Block s4 = {4,7,Blue,-1};
-Block s5 = {0,1,Violet,-1};
-Block s6 = {0,5,Yellow,-1};
+Block s1 = {2,1,Red,-1,true};
+Block s2 = {4,3,Orange,-1,true};
+Block s3 = {2,5,Green,-1,true};
+Block s4 = {4,7,Blue,-1,true};
+Block s5 = {0,1,Violet,-1,true};
+Block s6 = {0,5,Yellow,-1,true};
 
 //define the array
 Block blockArray[64] = {s1, s2, s3, s4, s5, s6};
@@ -39,7 +40,10 @@ void loop()
   ClearSlate();
   for (int i = 0; i < numberOfBlocks; i++)
   {
-    drawBlock(blockArray[i].x, blockArray[i].y, blockArray[i].color);
+    if (blockArray[i].active)
+    {
+      drawBlock(blockArray[i].x, blockArray[i].y, blockArray[i].color);
+    }
   }
   //if (moveBegin && numberOfBlocks < 16)
   //  spawn();
@@ -106,54 +110,70 @@ void updateBlocks() // Moves every block in the array if there is an empty space
   int stopped = 0; // Number of blocks that have come to rest
   for (int i = 0; i < numberOfBlocks; i++)
   {
-    if(blockArray[i].dir == 270)
+    if (blockArray[i].dir == 270)
     {
       if (blockArray[i].x <= 0) 
         stopped++; // Count it as stopped if it's on the edge
-      else
+      else if (ReadPx(blockArray[i].x - 2, blockArray[i].y) == blockArray[i].color)
       {
-        if(isUnique(blockArray[i].x - 2, blockArray[i].y)) // If there's an empty space...
-          blockArray[i].x -= 2; // Move the block
-        else stopped++; // Otherwise, count it as stopped.
+        Tone_Start(3950, 100);
+        blockArray[i].active = false; // Get rid of the block
+        stopped++;
       }
+       else if (isUnique(blockArray[i].x - 2, blockArray[i].y)) // If there's an empty space...
+       {
+          blockArray[i].x -= 2; // Move the block
+       }
+       else stopped++; // Otherwise, count it as stopped.
     }
   
-    else if(blockArray[i].dir == 0)
+    else if (blockArray[i].dir == 0)
     {
       if (blockArray[i].y >= 7)
         stopped++;
-      else
+      else if (ReadPx(blockArray[i].x, blockArray[i].y + 2) == blockArray[i].color) // Check for matching color
       {
-        if(isUnique(blockArray[i].x, blockArray[i].y + 2))
-          blockArray[i].y += 2;
-        else stopped++;
+        Tone_Start(3950, 100);
+        blockArray[i].active = false; // Get rid of the block
+        stopped++;
       }
+      else if (isUnique(blockArray[i].x, blockArray[i].y + 2))
+      {
+          blockArray[i].y += 2;
+      }
+      else stopped++;
     }
    
     else if(blockArray[i].dir == 90)
     {
       if (blockArray[i].x >= 6)
         stopped++;
-      else
+      else if (ReadPx(blockArray[i].x + 2, blockArray[i].y) == blockArray[i].color)
       {
-        if(isUnique(blockArray[i].x + 2, blockArray[i].y))
+        Tone_Start(3950, 100);
+        blockArray[i].active = false; // Get rid of the block
+        stopped++;
+      }
+       else if (isUnique(blockArray[i].x + 2, blockArray[i].y))
           blockArray[i].x += 2;
         else stopped++;
       }
-    }
     
     else if(blockArray[i].dir == 180)
     {
       if (blockArray[i].y <= 1)
         stopped++;
-      else
+      else if (ReadPx(blockArray[i].x, blockArray[i].y - 2) == blockArray[i].color)
       {
-        if(isUnique(blockArray[i].x, blockArray[i].y - 2))
+        Tone_Start(3950, 100);
+        blockArray[i].active = false; // Get rid of the block
+        stopped++;
+      }
+       else if (isUnique(blockArray[i].x, blockArray[i].y - 2))
           blockArray[i].y -= 2;
         else stopped++;
       }
     }
-  }
   if (stopped >= numberOfBlocks)
   {
     moveBegin = false;
@@ -173,6 +193,8 @@ void printArray()
     Serial.print(blockArray[i].y);
     Serial.print(" Dir");
     Serial.println(blockArray[i].dir);
+    Serial.print(" Active");
+    Serial.println(blockArray[i].active);
     Serial.println();
   }
 }
