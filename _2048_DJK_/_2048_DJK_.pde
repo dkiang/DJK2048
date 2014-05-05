@@ -46,9 +46,10 @@ void loop()
   DisplaySlate();
   delay(200);
   if (moveBegin)
+  {
     updateBlocks();
-  
-  
+    updateBlockDirection();
+  }
 
   
   CheckButtonsPress(); // Updates direction based on button press and sets moveBegin to spawn a new block at next turn
@@ -76,8 +77,8 @@ void loop()
   {
     printArray(); // Prints out values of blocks in the array
   }
-  if (moveBegin)
-    updateBlockDirection();
+
+
 }
 
 
@@ -103,10 +104,8 @@ void updateBlockDirection() // Goes through blockArray and sets all individual b
 void updateBlocks() // Moves every block in the array if there is an empty space
 {
   int stopped = 0; // Number of blocks that have come to rest
-  int i = 0;
-  while (i < numberOfBlocks)
+  for (int i = 0; i < numberOfBlocks; i++)
   {
-    stopped = 0;
     if(blockArray[i].dir == 270)
     {
       if (blockArray[i].x <= 0) 
@@ -154,8 +153,6 @@ void updateBlocks() // Moves every block in the array if there is an empty space
         else stopped++;
       }
     }
-    if (i > numberOfBlocks) i = 0;
-    else i++;
   }
   if (stopped >= numberOfBlocks)
   {
